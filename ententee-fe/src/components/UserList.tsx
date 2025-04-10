@@ -21,7 +21,7 @@ import { useNavigate } from 'react-router-dom';
 
 // Props interface
 interface UserListProps {
-  users: User[];
+  users?: User[];
   onEdit?: (user: User) => void;
   onDelete?: (userId: number) => void;
 }
@@ -43,7 +43,7 @@ const UserList: React.FC<UserListProps> = ({ users = [], onDelete }) => {
   };
 
   // Get current page of users
-  const currentUsers = users.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const currentUsers = users.length > 0 ? users.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage): [];
 
   // Handle delete action
   const handleDelete = (userId: number) => {

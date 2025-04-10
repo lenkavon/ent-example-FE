@@ -1,46 +1,40 @@
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { request } from './API/apiConfig';
 import UserList from './UserList';
 import { User } from './types';
+import { CircularProgress } from '@mui/material';
 
-// Sample user data
-const sampleUsers = [
-  {
-    id: 1,
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john.doe@example.com',
-    age: 25,
-  },
-  {
-    id: 2,
-    firstName: 'Jane',
-    lastName: 'Smith',
-    email: 'jane.smith@example.com',
-    age: 35,
-  },
-  {
-    id: 3,
-    firstName: 'Mike',
-    lastName: 'Johnson',
-    email: 'mike.johnson@example.com',
-    age: 45,
-  }
-];
+const fetchUsers = () => request<User[]>('users')
+const deleteUser = (userId: number) => request(`users/${userId}`, { method: 'DELETE' });
 
-const UserDashboard = () => {
-  const handleEdit = (user: User) => {
-    console.log('Edit user:', user);
-  };
+
+const UserDashboard = () => { 
+  const { data: users, isPending, refetch } = useQuery({
+    queryKey: ['users'],
+    queryFn: fetchUsers,
+    refetchOnWindowFocus: false,
+  });
+
+  const { mutate: deleteUserMutation } = useMutation({
+    mutationFn: deleteUser,
+    onSuccess: () => {
+      refetch();
+      // add notification
+    },
+  });
 
   const handleDelete = (userId: number) => {
-    console.log('Delete user with ID:', userId);
+    deleteUserMutation(userId);
   };
 
   return (
-    <UserList
-      users={sampleUsers}
-      onEdit={handleEdit}
-      onDelete={handleDelete}
-    />
+    isPending ? (
+      <CircularProgress />
+    ) : (
+      <UserList
+        users={users}
+        onDelete={handleDelete}
+      />)
   );
 }
 
